@@ -33,6 +33,8 @@ i po otevření `index.html` přímo z disku.
 | Soubor | Obsah |
 |---|---|
 | `index.html` | celá appka — struktura, styly i logika výpočtu v jednom souboru |
+| `icon-source.png` | zdrojová grafika 1054×1054 — z ní se generují všechny ostatní velikosti |
+| `logo-144.png` | logo v hlavičce appky (46px box, ostré i na 3× DPI) |
 | `favicon.ico`, `favicon-16.png`, `favicon-32.png` | ikona v záložce prohlížeče |
 | `apple-touch-icon.png` | 180×180, ikona na ploše iPhonu |
 | `icon-192.png`, `icon-512.png` | ikony pro Android / manifest |
@@ -156,10 +158,22 @@ Appka jde na mobilu uložit na plochu a chová se pak jako samostatná aplikace
 - **Android** — Chrome nabídne *Přidat na plochu* sám, ikonu a barvy si vezme
   ze `site.webmanifest`.
 
-Zdrojová ikona měla 180×180 px, což je přesně velikost, kterou chce iOS —
-`apple-touch-icon.png` je tedy bez převzorkování. `icon-512.png` je z ní
-zvětšený, takže je o něco měkčí; pokud se někdy objeví originál ve větším
-rozlišení, stačí ikony přegenerovat.
+Všechny velikosti se generují zmenšením z `icon-source.png` (1054×1054),
+takže jsou ostré. Stejná grafika je i logem v hlavičce appky — ikona na ploše
+a logo v appce jsou tedy jedno a totéž.
+
+Přegenerování po výměně zdroje (potřeba Pillow):
+
+```python
+from PIL import Image
+src = Image.open('icon-source.png').convert('RGB')
+for size, name in [(180,'apple-touch-icon.png'), (32,'favicon-32.png'),
+                   (16,'favicon-16.png'), (192,'icon-192.png'),
+                   (512,'icon-512.png'), (144,'logo-144.png')]:
+    src.resize((size, size), Image.LANCZOS).save(name, 'PNG', optimize=True)
+src.resize((48,48), Image.LANCZOS).save('favicon.ico', format='ICO',
+                                        sizes=[(16,16),(32,32),(48,48)])
+```
 
 ## Poznámky k implementaci
 
