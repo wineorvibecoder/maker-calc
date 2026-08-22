@@ -15,6 +15,11 @@ Dva režimy, protože kamarádům se počítá jinak než platícím zákazník�
 Přepnutí režimu skryje/zobrazí příslušné vstupy, ať to není matoucí. Přepočet
 je živý při psaní, žádné tlačítko „Spočítat“.
 
+## Repozitář
+
+Vlastní git repozitář, veřejný na GitHubu jako projekt **maker-calc**:
+<https://github.com/wineorvibecoder/maker-calc>
+
 ## Tech stack
 
 Vanilla HTML/CSS/JS v **jednom souboru**, bez frameworků, bez build kroku,
