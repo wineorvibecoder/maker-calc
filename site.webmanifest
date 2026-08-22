@@ -1,0 +1,17 @@
+{
+  "name": "Maker Calc",
+  "short_name": "Maker Calc",
+  "description": "Kalkulačka ceny 3D tisku — pro kámoše i na prodej.",
+  "lang": "cs",
+  "start_url": ".",
+  "scope": ".",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#0e1016",
+  "theme_color": "#0e1016",
+  "icons": [
+    { "src": "icon-192.png", "sizes": "192x192", "type": "image/png" },
+    { "src": "icon-512.png", "sizes": "512x512", "type": "image/png" },
+    { "src": "icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ]
+}

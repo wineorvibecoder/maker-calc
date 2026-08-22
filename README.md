@@ -33,6 +33,12 @@ i po otevření `index.html` přímo z disku.
 | Soubor | Obsah |
 |---|---|
 | `index.html` | celá appka — struktura, styly i logika výpočtu v jednom souboru |
+| `favicon.ico`, `favicon-16.png`, `favicon-32.png` | ikona v záložce prohlížeče |
+| `apple-touch-icon.png` | 180×180, ikona na ploše iPhonu |
+| `icon-192.png`, `icon-512.png` | ikony pro Android / manifest |
+| `site.webmanifest` | název, barvy a ikony pro „přidat na plochu“ |
+
+Logika appky zůstává celá v `index.html` — ostatní soubory jsou jen ikony.
 
 ## Jak se používá
 
@@ -139,6 +145,21 @@ Cena/kus           = Celkem / počet_kusů
 
 Hezky je z toho vidět, že u malých tisků nedělá největší položku filament,
 ale vlastní čas.
+
+## Ikona a uložení na plochu
+
+Appka jde na mobilu uložit na plochu a chová se pak jako samostatná aplikace
+(bez adresního řádku prohlížeče):
+
+- **iPhone** — v Safari *Sdílet → Přidat na plochu*. Použije se
+  `apple-touch-icon.png` a název „Maker Calc“.
+- **Android** — Chrome nabídne *Přidat na plochu* sám, ikonu a barvy si vezme
+  ze `site.webmanifest`.
+
+Zdrojová ikona měla 180×180 px, což je přesně velikost, kterou chce iOS —
+`apple-touch-icon.png` je tedy bez převzorkování. `icon-512.png` je z ní
+zvětšený, takže je o něco měkčí; pokud se někdy objeví originál ve větším
+rozlišení, stačí ikony přegenerovat.
 
 ## Poznámky k implementaci
 
