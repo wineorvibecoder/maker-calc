@@ -1,0 +1,808 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<title>Bambu Kalkulačka X2D</title>
+<style>
+  :root{
+    --bg: #0e1016;
+    --bg-2: #151824;
+    --panel: #1a1e2b;
+    --panel-2: #20253570;
+    --border: #2c3145;
+    --text: #eef0f6;
+    --text-dim: #9aa0b4;
+    --text-faint: #6b7086;
+    --accent-1: #ff5f6d; /* red filament */
+    --accent-2: #ffc93c; /* yellow */
+    --accent-3: #4dd0e1; /* cyan */
+    --accent-4: #7c4dff; /* purple */
+    --accent-5: #66bb6a; /* green */
+    --accent-6: #ff8a65; /* orange */
+    --good: #7ee787;
+    --radius: 14px;
+    --radius-sm: 9px;
+  }
+
+  *{ box-sizing: border-box; }
+
+  html, body{
+    margin:0; padding:0;
+    background: radial-gradient(1200px 800px at 10% -10%, #1c2136 0%, transparent 60%),
+                radial-gradient(1000px 700px at 110% 10%, #241a34 0%, transparent 55%),
+                var(--bg);
+    color: var(--text);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji";
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  .wrap{
+    max-width: 1180px;
+    margin: 0 auto;
+    padding: 20px 16px 60px;
+  }
+
+  header.top{
+    display:flex;
+    align-items:center;
+    gap: 14px;
+    margin-bottom: 18px;
+    flex-wrap: wrap;
+  }
+
+  .logo{
+    width: 46px; height:46px;
+    flex: 0 0 auto;
+    display:flex; align-items:center; justify-content:center;
+    border-radius: 12px;
+    background: linear-gradient(135deg, var(--accent-4), var(--accent-3));
+    box-shadow: 0 6px 20px -6px rgba(124,77,255,.6);
+  }
+
+  .titleblock h1{
+    margin:0;
+    font-size: 1.35rem;
+    font-weight: 800;
+    letter-spacing: -.01em;
+  }
+  .titleblock p{
+    margin: 2px 0 0;
+    font-size: .85rem;
+    color: var(--text-dim);
+  }
+
+  /* mode toggle */
+  .mode-toggle{
+    margin-left: auto;
+    display:flex;
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 999px;
+    padding: 4px;
+    gap: 4px;
+  }
+  .mode-toggle button{
+    appearance:none;
+    border:0;
+    background: transparent;
+    color: var(--text-dim);
+    font: inherit;
+    font-weight:600;
+    font-size: .85rem;
+    padding: 9px 16px;
+    border-radius: 999px;
+    cursor:pointer;
+    transition: background .18s ease, color .18s ease;
+    white-space: nowrap;
+  }
+  .mode-toggle button.active{
+    background: linear-gradient(135deg, var(--accent-4), var(--accent-3));
+    color: #0c0e15;
+  }
+
+  .reset-row{
+    display:flex;
+    justify-content:flex-end;
+    margin-bottom: 10px;
+  }
+  .reset-btn{
+    appearance:none;
+    background: transparent;
+    border: 1px solid var(--border);
+    color: var(--text-faint);
+    font: inherit;
+    font-size: .78rem;
+    padding: 7px 12px;
+    border-radius: 999px;
+    cursor:pointer;
+    transition: color .15s ease, border-color .15s ease;
+  }
+  .reset-btn:hover{
+    color: var(--text);
+    border-color: var(--accent-1);
+  }
+
+  .grid{
+    display:grid;
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+  @media (min-width: 880px){
+    .grid{
+      grid-template-columns: 1fr 1fr;
+      align-items: start;
+    }
+  }
+
+  .card{
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 18px;
+  }
+
+  .card h2{
+    margin: 0 0 4px;
+    font-size: 1rem;
+    font-weight: 700;
+  }
+  .card .sub{
+    margin: 0 0 16px;
+    font-size: .8rem;
+    color: var(--text-faint);
+  }
+
+  .field{
+    margin-bottom: 14px;
+  }
+  .field:last-child{ margin-bottom: 0; }
+
+  .field label{
+    display:block;
+    font-size: .82rem;
+    font-weight: 600;
+    color: var(--text-dim);
+    margin-bottom: 6px;
+  }
+
+  .input-row{
+    position: relative;
+    display:flex;
+    align-items:center;
+  }
+
+  .field input{
+    width: 100%;
+    background: var(--bg-2);
+    border: 1px solid var(--border);
+    color: var(--text);
+    font: inherit;
+    font-size: 1rem;
+    padding: 12px 14px;
+    border-radius: var(--radius-sm);
+    outline: none;
+    transition: border-color .15s ease, box-shadow .15s ease;
+    -webkit-appearance: none;
+    appearance: none;
+  }
+  .field input:focus{
+    border-color: var(--accent-3);
+    box-shadow: 0 0 0 3px rgba(77,208,225,.15);
+  }
+  .field .unit{
+    position:absolute;
+    right: 14px;
+    font-size: .8rem;
+    color: var(--text-faint);
+    pointer-events:none;
+  }
+  .field.has-unit input{
+    padding-right: 48px;
+  }
+
+  .hint{
+    margin-top: 6px;
+    font-size: .74rem;
+    line-height: 1.35;
+    color: var(--text-faint);
+  }
+
+  .section-divider{
+    border: none;
+    border-top: 1px dashed var(--border);
+    margin: 18px 0;
+  }
+
+  .sell-only[hidden]{ display:none; }
+
+  /* results */
+  .results-card{
+    position: sticky;
+    top: 16px;
+  }
+  @media (max-width: 879px){
+    .results-card{ position: static; }
+  }
+
+  .results-headline{
+    font-size: 1.05rem;
+    font-weight: 800;
+    margin: 0 0 2px;
+  }
+  .results-tagline{
+    font-size: .8rem;
+    color: var(--text-dim);
+    margin: 0 0 18px;
+  }
+
+  .empty-state{
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    text-align:center;
+    gap: 10px;
+    padding: 34px 12px;
+    color: var(--text-dim);
+  }
+  .empty-state[hidden]{
+    display:none;
+  }
+  .empty-state .emoji{
+    font-size: 2.2rem;
+  }
+  .empty-state p{
+    margin:0;
+    font-size: .92rem;
+    max-width: 30ch;
+  }
+
+  .headline-numbers{
+    display:grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    margin-bottom: 20px;
+  }
+  .headline-box{
+    border-radius: var(--radius-sm);
+    padding: 16px 14px;
+    background: linear-gradient(135deg, #23283a, #1a1e2b);
+    border: 1px solid var(--border);
+  }
+  .headline-box .label{
+    font-size: .74rem;
+    text-transform: uppercase;
+    letter-spacing: .04em;
+    color: var(--text-faint);
+    margin-bottom: 6px;
+  }
+  .headline-box .value{
+    font-size: 1.5rem;
+    font-weight: 800;
+    letter-spacing: -.01em;
+  }
+  .headline-box.piece .value{ color: var(--accent-2); }
+  .headline-box.plate .value{ color: var(--good); }
+
+  .line-items{
+    display:flex;
+    flex-direction:column;
+    gap: 10px;
+  }
+  .line-item{
+    background: var(--panel-2);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    padding: 10px 12px;
+  }
+  .line-item .row{
+    display:flex;
+    justify-content: space-between;
+    align-items: baseline;
+    gap: 10px;
+    margin-bottom: 6px;
+  }
+  .line-item .name{
+    font-size: .85rem;
+    font-weight: 600;
+    color: var(--text);
+  }
+  .line-item .amount{
+    font-size: .88rem;
+    font-weight: 700;
+    white-space: nowrap;
+    font-variant-numeric: tabular-nums;
+  }
+  .line-item .bar-track{
+    height: 6px;
+    border-radius: 999px;
+    background: #0c0e17;
+    overflow: hidden;
+  }
+  .line-item .bar-fill{
+    height: 100%;
+    border-radius: 999px;
+    transition: width .25s ease;
+  }
+  .line-item .pct{
+    font-size: .7rem;
+    color: var(--text-faint);
+    margin-top: 4px;
+    text-align: right;
+  }
+
+  .subtotal-row{
+    display:flex;
+    justify-content: space-between;
+    font-size: .82rem;
+    color: var(--text-dim);
+    padding: 10px 2px 0;
+  }
+  .subtotal-row.total{
+    font-weight: 700;
+    color: var(--text);
+    padding-top: 6px;
+  }
+
+  footer.foot{
+    text-align:center;
+    margin-top: 28px;
+    font-size: .74rem;
+    color: var(--text-faint);
+  }
+
+  ::selection{ background: var(--accent-4); color: #fff; }
+
+  @media (max-width: 879px){
+    /* pohodlné tap targety na dotyku */
+    .mode-toggle button{ min-height: 44px; }
+    .reset-btn{ min-height: 40px; }
+  }
+
+  @media (max-width: 420px){
+    .headline-box .value{ font-size: 1.25rem; }
+    .titleblock h1{ font-size: 1.15rem; }
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header class="top">
+    <div class="logo" aria-hidden="true">
+      <svg width="26" height="26" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <rect x="3" y="4" width="18" height="13" rx="2" stroke="#0c0e15" stroke-width="1.6"/>
+        <path d="M8 17v2.5M16 17v2.5" stroke="#0c0e15" stroke-width="1.6" stroke-linecap="round"/>
+        <circle cx="12" cy="10" r="3" stroke="#0c0e15" stroke-width="1.6"/>
+        <path d="M12 7.5v1M12 11.5v1" stroke="#0c0e15" stroke-width="1.4" stroke-linecap="round"/>
+      </svg>
+    </div>
+    <div class="titleblock">
+      <h1>Bambu Kalkulačka X2D</h1>
+      <p>Kolik tě to fakt stálo, než jsi to zase dal zadarmo.</p>
+    </div>
+    <div class="mode-toggle" role="tablist" aria-label="Režim výpočtu">
+      <button type="button" id="modeKamos" role="tab">Pro kámoše</button>
+      <button type="button" id="modeSell" role="tab">Na prodej</button>
+    </div>
+  </header>
+
+  <div class="reset-row">
+    <button type="button" class="reset-btn" id="resetBtn">Reset na výchozí</button>
+  </div>
+
+  <div class="grid">
+    <!-- INPUTS -->
+    <div class="card inputs-card">
+      <h2>Vstupy</h2>
+      <p class="sub">Vyplň, co víš. Zbytek dopočítáme za tebe.</p>
+
+      <div class="field">
+        <label for="pieceCount">Počet kusů na plate</label>
+        <input type="number" id="pieceCount" min="1" step="1" inputmode="numeric" value="1">
+      </div>
+
+      <div class="field has-unit">
+        <label for="filamentG">Filament</label>
+        <div class="input-row">
+          <input type="number" id="filamentG" min="0" step="1" inputmode="decimal" placeholder="např. 42">
+          <span class="unit">g</span>
+        </div>
+      </div>
+
+      <div class="field has-unit">
+        <label for="filamentPrice">Cena filamentu</label>
+        <div class="input-row">
+          <input type="number" id="filamentPrice" min="0" step="1" inputmode="decimal" value="350">
+          <span class="unit">Kč/kg</span>
+        </div>
+      </div>
+
+      <div class="field has-unit">
+        <label for="printTime">Doba tisku</label>
+        <div class="input-row">
+          <input type="number" id="printTime" min="0" step="0.1" inputmode="decimal" placeholder="např. 3.5">
+          <span class="unit">h</span>
+        </div>
+      </div>
+
+      <div class="field has-unit">
+        <label for="printerWatt">Příkon tiskárny</label>
+        <div class="input-row">
+          <input type="number" id="printerWatt" min="0" step="1" inputmode="decimal" value="200">
+          <span class="unit">W</span>
+        </div>
+        <div class="hint">Orientační průměr, můžeš si zpřesnit wattmetrem.</div>
+      </div>
+
+      <div class="field has-unit">
+        <label for="elecPrice">Cena elektřiny</label>
+        <div class="input-row">
+          <input type="number" id="elecPrice" min="0" step="0.1" inputmode="decimal" value="6">
+          <span class="unit">Kč/kWh</span>
+        </div>
+      </div>
+
+      <div class="sell-only" id="sellOnlyInputs">
+        <hr class="section-divider">
+        <h2>Jen pro „Na prodej"</h2>
+        <p class="sub">Tady se z kamarádské slevy stává byznys plán.</p>
+
+        <div class="field has-unit">
+          <label for="printerPrice">Cena tiskárny</label>
+          <div class="input-row">
+            <input type="number" id="printerPrice" min="0" step="1" inputmode="decimal" value="19000">
+            <span class="unit">Kč</span>
+          </div>
+        </div>
+
+        <div class="field has-unit">
+          <label for="printerLife">Životnost tiskárny</label>
+          <div class="input-row">
+            <input type="number" id="printerLife" min="0" step="1" inputmode="decimal" value="4000">
+            <span class="unit">h</span>
+          </div>
+          <div class="hint">Odhad pro amortizaci.</div>
+        </div>
+
+        <div class="field has-unit">
+          <label for="partsPerHour">Spotřební díly</label>
+          <div class="input-row">
+            <input type="number" id="partsPerHour" min="0" step="0.1" inputmode="decimal" value="4">
+            <span class="unit">Kč/h</span>
+          </div>
+          <div class="hint">Kalená tryska ~400–600 Kč / ~300–500 h ≈ 1–1,5 Kč/h; PEI deska ~1500–2000 Kč / ~500–800 h ≈ 2–3 Kč/h; drobné opotřebení ~0,5–1 Kč/h.</div>
+        </div>
+
+        <div class="field has-unit">
+          <label for="consumableFlat">Spotřební materiál na tisk</label>
+          <div class="input-row">
+            <input type="number" id="consumableFlat" min="0" step="0.5" inputmode="decimal" value="1">
+            <span class="unit">Kč</span>
+          </div>
+          <div class="hint">Perlan na odmaštění desky + pár stříků IPA; počítá se jednou za celý plate, ne za kus.</div>
+        </div>
+
+        <div class="field has-unit">
+          <label for="scrapPercent">Zmetkovitost</label>
+          <div class="input-row">
+            <input type="number" id="scrapPercent" min="0" step="1" inputmode="decimal" value="10">
+            <span class="unit">%</span>
+          </div>
+        </div>
+
+        <div class="field has-unit">
+          <label for="myTimeRate">Můj čas</label>
+          <div class="input-row">
+            <input type="number" id="myTimeRate" min="0" step="10" inputmode="decimal" value="500">
+            <span class="unit">Kč/h</span>
+          </div>
+        </div>
+
+        <div class="field has-unit">
+          <label for="myTimeHours">Můj čas</label>
+          <div class="input-row">
+            <input type="number" id="myTimeHours" min="0" step="0.05" inputmode="decimal" value="0.25">
+            <span class="unit">h</span>
+          </div>
+          <div class="hint">0,25 h = 15 min.</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- RESULTS -->
+    <div class="card results-card">
+      <div id="emptyState" class="empty-state" hidden>
+        <div class="emoji">🧵</div>
+        <p>Vyplň gramy a čas, ať mám co počítat…</p>
+      </div>
+
+      <div id="resultsContent">
+        <p class="results-headline" id="resultsHeadline">Kámošská sazba aktivována 🍺</p>
+        <p class="results-tagline" id="resultsTagline">Amortizace? Můj čas? Ale prosím tě.</p>
+
+        <div class="headline-numbers">
+          <div class="headline-box piece">
+            <div class="label">Cena za kus</div>
+            <div class="value" id="pricePerPiece">0,00 Kč</div>
+          </div>
+          <div class="headline-box plate">
+            <div class="label">Cena za plate</div>
+            <div class="value" id="priceTotal">0,00 Kč</div>
+          </div>
+        </div>
+
+        <div class="line-items" id="lineItems"></div>
+      </div>
+    </div>
+  </div>
+
+  <footer class="foot">Vše se počítá lokálně v prohlížeči. Žádná data nikam neodcházejí.</footer>
+</div>
+
+<script>
+(function(){
+  "use strict";
+
+  var STORAGE_KEY = "bambuX2D.v1";
+
+  var DEFAULTS = {
+    mode: "kamos",
+    pieceCount: 1,
+    filamentG: "",
+    filamentPrice: 350,
+    printTime: "",
+    printerWatt: 200,
+    elecPrice: 6,
+    printerPrice: 19000,
+    printerLife: 4000,
+    partsPerHour: 4,
+    consumableFlat: 1,
+    scrapPercent: 10,
+    myTimeRate: 500,
+    myTimeHours: 0.25
+  };
+
+  var FIELD_IDS = [
+    "pieceCount","filamentG","filamentPrice","printTime","printerWatt","elecPrice",
+    "printerPrice","printerLife","partsPerHour","consumableFlat","scrapPercent","myTimeRate","myTimeHours"
+  ];
+
+  var COLORS = ["#ff5f6d", "#ffc93c", "#4dd0e1", "#7c4dff", "#66bb6a", "#ff8a65"];
+
+  var els = {};
+  FIELD_IDS.forEach(function(id){ els[id] = document.getElementById(id); });
+  els.modeKamos = document.getElementById("modeKamos");
+  els.modeSell = document.getElementById("modeSell");
+  els.sellOnlyInputs = document.getElementById("sellOnlyInputs");
+  els.resetBtn = document.getElementById("resetBtn");
+  els.emptyState = document.getElementById("emptyState");
+  els.resultsContent = document.getElementById("resultsContent");
+  els.resultsHeadline = document.getElementById("resultsHeadline");
+  els.resultsTagline = document.getElementById("resultsTagline");
+  els.pricePerPiece = document.getElementById("pricePerPiece");
+  els.priceTotal = document.getElementById("priceTotal");
+  els.lineItems = document.getElementById("lineItems");
+
+  var state = loadState();
+
+  function loadState(){
+    var s = {};
+    for (var k in DEFAULTS) s[k] = DEFAULTS[k];
+    try{
+      var raw = localStorage.getItem(STORAGE_KEY);
+      if (raw){
+        var parsed = JSON.parse(raw);
+        for (var key in DEFAULTS){
+          if (parsed.hasOwnProperty(key)) s[key] = parsed[key];
+        }
+      }
+    }catch(e){ /* ignore corrupt storage */ }
+    return s;
+  }
+
+  function saveState(){
+    try{
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+    }catch(e){ /* storage unavailable, ignore */ }
+  }
+
+  function fmt(n){
+    if (!isFinite(n)) n = 0;
+    return n.toLocaleString("cs-CZ", { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + " Kč";
+  }
+
+  function numOrZero(v){
+    var n = parseFloat(v);
+    return isFinite(n) ? n : 0;
+  }
+
+  function applyStateToInputs(){
+    FIELD_IDS.forEach(function(id){
+      var el = els[id];
+      if (!el) return;
+      el.value = state[id];
+    });
+    updateModeUI();
+  }
+
+  function updateModeUI(){
+    var isSell = state.mode === "sell";
+    els.modeKamos.classList.toggle("active", !isSell);
+    els.modeSell.classList.toggle("active", isSell);
+    els.modeKamos.setAttribute("aria-selected", String(!isSell));
+    els.modeSell.setAttribute("aria-selected", String(isSell));
+    els.sellOnlyInputs.hidden = !isSell;
+  }
+
+  function readInputsIntoState(){
+    FIELD_IDS.forEach(function(id){
+      var el = els[id];
+      if (!el) return;
+      state[id] = el.value;
+    });
+  }
+
+  function compute(){
+    var pieceCount = Math.max(1, Math.floor(numOrZero(state.pieceCount)) || 1);
+    var filamentG = numOrZero(state.filamentG);
+    var filamentPrice = numOrZero(state.filamentPrice);
+    var printTime = numOrZero(state.printTime);
+    var printerWatt = numOrZero(state.printerWatt);
+    var elecPrice = numOrZero(state.elecPrice);
+
+    var material = (filamentG / 1000) * filamentPrice;
+    var electricity = (printerWatt / 1000) * printTime * elecPrice;
+
+    var items = [
+      { label: "Materiál", value: material, color: COLORS[0] },
+      { label: "Elektřina", value: electricity, color: COLORS[2] }
+    ];
+
+    var subtotal = material + electricity;
+    var total = subtotal;
+
+    if (state.mode === "sell"){
+      var printerPrice = numOrZero(state.printerPrice);
+      var printerLife = numOrZero(state.printerLife);
+      var partsPerHour = numOrZero(state.partsPerHour);
+      var consumableFlat = numOrZero(state.consumableFlat);
+      var scrapPercent = numOrZero(state.scrapPercent);
+      var myTimeRate = numOrZero(state.myTimeRate);
+      var myTimeHours = numOrZero(state.myTimeHours);
+
+      var amortization = printerLife > 0 ? (printerPrice / printerLife) * printTime : 0;
+      var parts = partsPerHour * printTime;
+      var consumable = consumableFlat;
+      var myTime = myTimeRate * myTimeHours;
+
+      items.push(
+        { label: "Amortizace tiskárny", value: amortization, color: COLORS[3] },
+        { label: "Spotřební díly", value: parts, color: COLORS[5] },
+        { label: "Spotřební materiál", value: consumable, color: COLORS[4] },
+        { label: "Můj čas", value: myTime, color: COLORS[1] }
+      );
+
+      var subtotalSell = material + electricity + amortization + parts + consumable + myTime;
+      var scrap = subtotalSell * (scrapPercent / 100);
+
+      items.push({ label: "Zmetkovitost", value: scrap, color: "#5b6178", isScrap: true });
+
+      subtotal = subtotalSell;
+      total = subtotalSell + scrap;
+    }
+
+    var pricePerPiece = total / pieceCount;
+
+    return {
+      pieceCount: pieceCount,
+      filamentG: filamentG,
+      printTime: printTime,
+      items: items,
+      subtotal: subtotal,
+      total: total,
+      pricePerPiece: pricePerPiece
+    };
+  }
+
+  function hasInput(v){
+    return v !== "" && v !== null && v !== undefined && isFinite(parseFloat(v)) && parseFloat(v) > 0;
+  }
+
+  function render(){
+    var filled = hasInput(state.filamentG) && hasInput(state.printTime);
+
+    if (!filled){
+      els.emptyState.hidden = false;
+      els.resultsContent.style.display = "none";
+      return;
+    }
+    els.emptyState.hidden = true;
+    els.resultsContent.style.display = "";
+
+    var result = compute();
+
+    if (state.mode === "sell"){
+      els.resultsHeadline.textContent = "Čas jsou peníze 💰";
+      els.resultsTagline.textContent = "Amortizace, opotřebení i tvůj čas — teď se počítá úplně všechno.";
+    } else {
+      els.resultsHeadline.textContent = "Kámošská sazba aktivována 🍺";
+      els.resultsTagline.textContent = "Amortizace? Můj čas? Ale prosím tě.";
+    }
+
+    els.pricePerPiece.textContent = fmt(result.pricePerPiece);
+    els.priceTotal.textContent = fmt(result.total);
+
+    var totalForPct = result.total > 0 ? result.total : 1;
+    var html = "";
+    result.items.forEach(function(item){
+      var pct = Math.max(0, Math.min(100, (item.value / totalForPct) * 100));
+      html += '' +
+        '<div class="line-item">' +
+          '<div class="row">' +
+            '<span class="name">' + item.label + '</span>' +
+            '<span class="amount">' + fmt(item.value) + '</span>' +
+          '</div>' +
+          '<div class="bar-track"><div class="bar-fill" style="width:' + pct.toFixed(1) + '%;background:' + item.color + '"></div></div>' +
+          '<div class="pct">' + pct.toLocaleString("cs-CZ", {minimumFractionDigits:1, maximumFractionDigits:1}) + ' %</div>' +
+        '</div>';
+    });
+    els.lineItems.innerHTML = html;
+  }
+
+  function onAnyInput(){
+    readInputsIntoState();
+    saveState();
+    render();
+  }
+
+  FIELD_IDS.forEach(function(id){
+    var el = els[id];
+    if (!el) return;
+    el.addEventListener("input", onAnyInput);
+  });
+
+  els.modeKamos.addEventListener("click", function(){
+    state.mode = "kamos";
+    saveState();
+    updateModeUI();
+    render();
+  });
+  els.modeSell.addEventListener("click", function(){
+    state.mode = "sell";
+    saveState();
+    updateModeUI();
+    render();
+  });
+
+  els.resetBtn.addEventListener("click", function(){
+    var mode = state.mode;
+    state = {};
+    for (var k in DEFAULTS) state[k] = DEFAULTS[k];
+    state.mode = mode;
+    saveState();
+    applyStateToInputs();
+    render();
+  });
+
+  // Jednotka sedí vpravo v inputu — odsadíme text přesně o její šířku,
+  // ať se "6" nikdy nedotkne "Kč/kWh".
+  function fitUnitPadding(){
+    var fields = document.querySelectorAll(".field.has-unit");
+    for (var i = 0; i < fields.length; i++){
+      var input = fields[i].querySelector("input");
+      var unit = fields[i].querySelector(".unit");
+      if (!input || !unit) continue;
+      input.style.paddingRight = Math.ceil(unit.getBoundingClientRect().width) + 24 + "px";
+    }
+  }
+
+  applyStateToInputs();
+  render();
+  fitUnitPadding();
+  window.addEventListener("resize", fitUnitPadding);
+})();
+</script>
+</body>
+</html>
