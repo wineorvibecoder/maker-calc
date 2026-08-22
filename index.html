@@ -3,9 +3,11 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
-<title>Bambu Kalkulačka X2D</title>
+<title>Maker Calc</title>
 <style>
   :root{
+    /* ať prohlížeč kreslí scrollbary a spinnery tmavě, ne světle */
+    color-scheme: dark;
     --bg: #0e1016;
     --bg-2: #151824;
     --panel: #1a1e2b;
@@ -102,27 +104,39 @@
     color: #0c0e15;
   }
 
-  .reset-row{
-    display:flex;
-    justify-content:flex-end;
-    margin-bottom: 10px;
-  }
-  .reset-btn{
+  .settings-btn{
+    position: relative;
     appearance:none;
-    background: transparent;
+    display:flex;
+    align-items:center;
+    gap: 6px;
+    background: var(--panel);
     border: 1px solid var(--border);
-    color: var(--text-faint);
+    color: var(--text-dim);
     font: inherit;
-    font-size: .78rem;
-    padding: 7px 12px;
+    font-weight: 600;
+    font-size: .85rem;
+    padding: 9px 14px;
     border-radius: 999px;
     cursor:pointer;
     transition: color .15s ease, border-color .15s ease;
+    white-space: nowrap;
   }
-  .reset-btn:hover{
+  .settings-btn:hover{
     color: var(--text);
-    border-color: var(--accent-1);
+    border-color: var(--accent-3);
   }
+  .settings-badge{
+    position:absolute;
+    top: -2px;
+    right: -2px;
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background: var(--accent-1);
+    border: 2px solid var(--bg);
+  }
+  .settings-badge[hidden]{ display:none; }
 
   .grid{
     display:grid;
@@ -207,12 +221,6 @@
     font-size: .74rem;
     line-height: 1.35;
     color: var(--text-faint);
-  }
-
-  .section-divider{
-    border: none;
-    border-top: 1px dashed var(--border);
-    margin: 18px 0;
   }
 
   .sell-only[hidden]{ display:none; }
@@ -354,10 +362,106 @@
 
   ::selection{ background: var(--accent-4); color: #fff; }
 
+  /* settings modal */
+  dialog.settings-dialog{
+    padding: 0;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    background: var(--panel);
+    color: var(--text);
+    width: min(560px, 92vw);
+    max-width: 92vw;
+    max-height: 85vh;
+  }
+  dialog.settings-dialog::backdrop{
+    background: rgba(6,7,12,.72);
+  }
+  .settings-dialog-inner{
+    display:flex;
+    flex-direction:column;
+    max-height: 85vh;
+  }
+  .settings-dialog-header{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap: 12px;
+    padding: 16px 18px;
+    border-bottom: 1px solid var(--border);
+    flex: 0 0 auto;
+  }
+  .settings-dialog-header h2{
+    margin: 0;
+    font-size: 1.05rem;
+    font-weight: 800;
+  }
+  .dialog-close-btn{
+    appearance:none;
+    border: 1px solid var(--border);
+    background: var(--bg-2);
+    color: var(--text-dim);
+    min-width: 44px;
+    min-height: 44px;
+    border-radius: 999px;
+    font-size: 1rem;
+    line-height: 1;
+    cursor:pointer;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    transition: color .15s ease, border-color .15s ease;
+  }
+  .dialog-close-btn:hover{
+    color: var(--text);
+    border-color: var(--accent-1);
+  }
+  .settings-dialog-body{
+    padding: 18px;
+    overflow-y: auto;
+    flex: 1 1 auto;
+  }
+  .settings-group{ margin-bottom: 22px; }
+  .settings-group:last-of-type{ margin-bottom: 0; }
+  .settings-group h3{
+    margin: 0 0 12px;
+    font-size: .9rem;
+    font-weight: 700;
+    color: var(--text);
+  }
+  .settings-dialog-body .reset-btn{
+    appearance:none;
+    width: 100%;
+    min-height: 44px;
+    margin-top: 8px;
+    background: transparent;
+    border: 1px solid var(--border);
+    color: var(--text-faint);
+    font: inherit;
+    font-size: .85rem;
+    padding: 10px 12px;
+    border-radius: var(--radius-sm);
+    cursor:pointer;
+    transition: color .15s ease, border-color .15s ease;
+  }
+  .settings-dialog-body .reset-btn:hover{
+    color: var(--text);
+    border-color: var(--accent-1);
+  }
+  .settings-note{
+    margin: 18px 0 0;
+    font-size: .76rem;
+    line-height: 1.4;
+    color: var(--text-faint);
+  }
+
   @media (max-width: 879px){
     /* pohodlné tap targety na dotyku */
     .mode-toggle button{ min-height: 44px; }
     .reset-btn{ min-height: 40px; }
+  }
+
+  @media (max-width: 879px){
+    .settings-btn{ min-height: 44px; }
   }
 
   @media (max-width: 420px){
@@ -379,18 +483,18 @@
       </svg>
     </div>
     <div class="titleblock">
-      <h1>Bambu Kalkulačka X2D</h1>
+      <h1>Maker Calc</h1>
       <p>Kolik tě to fakt stálo, než jsi to zase dal zadarmo.</p>
     </div>
     <div class="mode-toggle" role="tablist" aria-label="Režim výpočtu">
       <button type="button" id="modeKamos" role="tab">Pro kámoše</button>
       <button type="button" id="modeSell" role="tab">Na prodej</button>
     </div>
+    <button type="button" class="settings-btn" id="settingsBtn" aria-haspopup="dialog" aria-controls="settingsDialog">
+      <span>⚙️ Nastavení</span>
+      <span class="settings-badge" id="settingsBadge" hidden></span>
+    </button>
   </header>
-
-  <div class="reset-row">
-    <button type="button" class="reset-btn" id="resetBtn">Reset na výchozí</button>
-  </div>
 
   <div class="grid">
     <!-- INPUTS -->
@@ -427,27 +531,77 @@
         </div>
       </div>
 
-      <div class="field has-unit">
-        <label for="printerWatt">Příkon tiskárny</label>
+      <div class="field has-unit sell-only" id="myTimeHoursField">
+        <label for="myTimeHours">Můj čas</label>
         <div class="input-row">
-          <input type="number" id="printerWatt" min="0" step="1" inputmode="decimal" value="200">
-          <span class="unit">W</span>
+          <input type="number" id="myTimeHours" min="0" step="0.05" inputmode="decimal" value="0.25">
+          <span class="unit">h</span>
         </div>
-        <div class="hint">Orientační průměr, můžeš si zpřesnit wattmetrem.</div>
+        <div class="hint">0,25 h = 15 min.</div>
+      </div>
+    </div>
+
+    <!-- RESULTS -->
+    <div class="card results-card">
+      <div id="emptyState" class="empty-state" hidden>
+        <div class="emoji">🧵</div>
+        <p>Vyplň gramy a čas, ať mám co počítat…</p>
       </div>
 
-      <div class="field has-unit">
-        <label for="elecPrice">Cena elektřiny</label>
-        <div class="input-row">
-          <input type="number" id="elecPrice" min="0" step="0.1" inputmode="decimal" value="6">
-          <span class="unit">Kč/kWh</span>
+      <div id="resultsContent">
+        <p class="results-headline" id="resultsHeadline">Kámošská sazba aktivována 🍺</p>
+        <p class="results-tagline" id="resultsTagline">Amortizace? Můj čas? Ale prosím tě.</p>
+
+        <div class="headline-numbers">
+          <div class="headline-box piece">
+            <div class="label">Cena za kus</div>
+            <div class="value" id="pricePerPiece">0,00 Kč</div>
+          </div>
+          <div class="headline-box plate">
+            <div class="label">Cena za plate</div>
+            <div class="value" id="priceTotal">0,00 Kč</div>
+          </div>
+        </div>
+
+        <div class="line-items" id="lineItems"></div>
+      </div>
+    </div>
+  </div>
+
+  <footer class="foot">Vše se počítá lokálně v prohlížeči. Žádná data nikam neodcházejí.</footer>
+</div>
+
+<dialog id="settingsDialog" class="settings-dialog" aria-label="Nastavení">
+  <div class="settings-dialog-inner">
+    <div class="settings-dialog-header">
+      <h2>Nastavení</h2>
+      <button type="button" class="dialog-close-btn" id="settingsCloseBtn" aria-label="Zavřít nastavení">✕</button>
+    </div>
+    <div class="settings-dialog-body">
+
+      <div class="settings-group">
+        <h3>Tiskárna a energie</h3>
+
+        <div class="field has-unit">
+          <label for="printerWatt">Příkon tiskárny</label>
+          <div class="input-row">
+            <input type="number" id="printerWatt" min="0" step="1" inputmode="decimal" value="200">
+            <span class="unit">W</span>
+          </div>
+          <div class="hint">Orientační průměr, můžeš si zpřesnit wattmetrem.</div>
+        </div>
+
+        <div class="field has-unit">
+          <label for="elecPrice">Cena elektřiny</label>
+          <div class="input-row">
+            <input type="number" id="elecPrice" min="0" step="0.1" inputmode="decimal" value="6">
+            <span class="unit">Kč/kWh</span>
+          </div>
         </div>
       </div>
 
-      <div class="sell-only" id="sellOnlyInputs">
-        <hr class="section-divider">
-        <h2>Jen pro „Na prodej"</h2>
-        <p class="sub">Tady se z kamarádské slevy stává byznys plán.</p>
+      <div class="settings-group sell-only" id="sellOnlyInputs">
+        <h3>Náklady pro režim „Na prodej"</h3>
 
         <div class="field has-unit">
           <label for="printerPrice">Cena tiskárny</label>
@@ -499,53 +653,21 @@
             <span class="unit">Kč/h</span>
           </div>
         </div>
-
-        <div class="field has-unit">
-          <label for="myTimeHours">Můj čas</label>
-          <div class="input-row">
-            <input type="number" id="myTimeHours" min="0" step="0.05" inputmode="decimal" value="0.25">
-            <span class="unit">h</span>
-          </div>
-          <div class="hint">0,25 h = 15 min.</div>
-        </div>
-      </div>
-    </div>
-
-    <!-- RESULTS -->
-    <div class="card results-card">
-      <div id="emptyState" class="empty-state" hidden>
-        <div class="emoji">🧵</div>
-        <p>Vyplň gramy a čas, ať mám co počítat…</p>
       </div>
 
-      <div id="resultsContent">
-        <p class="results-headline" id="resultsHeadline">Kámošská sazba aktivována 🍺</p>
-        <p class="results-tagline" id="resultsTagline">Amortizace? Můj čas? Ale prosím tě.</p>
+      <button type="button" class="reset-btn" id="resetBtn">Reset na výchozí</button>
 
-        <div class="headline-numbers">
-          <div class="headline-box piece">
-            <div class="label">Cena za kus</div>
-            <div class="value" id="pricePerPiece">0,00 Kč</div>
-          </div>
-          <div class="headline-box plate">
-            <div class="label">Cena za plate</div>
-            <div class="value" id="priceTotal">0,00 Kč</div>
-          </div>
-        </div>
-
-        <div class="line-items" id="lineItems"></div>
-      </div>
+      <p class="settings-note">Výchozí hodnoty jsou laděné pro Bambu Lab X2D — pro jinou tiskárnu si je uprav podle skutečnosti.</p>
     </div>
   </div>
-
-  <footer class="foot">Vše se počítá lokálně v prohlížeči. Žádná data nikam neodcházejí.</footer>
-</div>
+</dialog>
 
 <script>
 (function(){
   "use strict";
 
-  var STORAGE_KEY = "bambuX2D.v1";
+  var STORAGE_KEY = "makerCalc.v1";
+  var OLD_STORAGE_KEY = "bambuX2D.v1";
 
   var DEFAULTS = {
     mode: "kamos",
@@ -569,6 +691,10 @@
     "printerPrice","printerLife","partsPerHour","consumableFlat","scrapPercent","myTimeRate","myTimeHours"
   ];
 
+  var SETTINGS_FIELD_IDS = [
+    "printerWatt","elecPrice","printerPrice","printerLife","partsPerHour","consumableFlat","scrapPercent","myTimeRate"
+  ];
+
   var COLORS = ["#ff5f6d", "#ffc93c", "#4dd0e1", "#7c4dff", "#66bb6a", "#ff8a65"];
 
   var els = {};
@@ -576,6 +702,7 @@
   els.modeKamos = document.getElementById("modeKamos");
   els.modeSell = document.getElementById("modeSell");
   els.sellOnlyInputs = document.getElementById("sellOnlyInputs");
+  els.myTimeHoursField = document.getElementById("myTimeHoursField");
   els.resetBtn = document.getElementById("resetBtn");
   els.emptyState = document.getElementById("emptyState");
   els.resultsContent = document.getElementById("resultsContent");
@@ -584,6 +711,10 @@
   els.pricePerPiece = document.getElementById("pricePerPiece");
   els.priceTotal = document.getElementById("priceTotal");
   els.lineItems = document.getElementById("lineItems");
+  els.settingsBtn = document.getElementById("settingsBtn");
+  els.settingsBadge = document.getElementById("settingsBadge");
+  els.settingsDialog = document.getElementById("settingsDialog");
+  els.settingsCloseBtn = document.getElementById("settingsCloseBtn");
 
   var state = loadState();
 
@@ -592,6 +723,10 @@
     for (var k in DEFAULTS) s[k] = DEFAULTS[k];
     try{
       var raw = localStorage.getItem(STORAGE_KEY);
+      if (!raw){
+        var oldRaw = localStorage.getItem(OLD_STORAGE_KEY);
+        if (oldRaw) raw = oldRaw;
+      }
       if (raw){
         var parsed = JSON.parse(raw);
         for (var key in DEFAULTS){
@@ -634,6 +769,7 @@
     els.modeKamos.setAttribute("aria-selected", String(!isSell));
     els.modeSell.setAttribute("aria-selected", String(isSell));
     els.sellOnlyInputs.hidden = !isSell;
+    els.myTimeHoursField.hidden = !isSell;
   }
 
   function readInputsIntoState(){
@@ -710,7 +846,16 @@
     return v !== "" && v !== null && v !== undefined && isFinite(parseFloat(v)) && parseFloat(v) > 0;
   }
 
+  function updateSettingsBadge(){
+    var changed = SETTINGS_FIELD_IDS.some(function(id){
+      return numOrZero(state[id]) !== numOrZero(DEFAULTS[id]);
+    });
+    els.settingsBadge.hidden = !changed;
+  }
+
   function render(){
+    updateSettingsBadge();
+
     var filled = hasInput(state.filamentG) && hasInput(state.printTime);
 
     if (!filled){
@@ -786,6 +931,20 @@
     render();
   });
 
+  els.settingsBtn.addEventListener("click", function(){
+    els.settingsDialog.showModal();
+    fitUnitPadding();
+  });
+  els.settingsCloseBtn.addEventListener("click", function(){
+    els.settingsDialog.close();
+  });
+  els.settingsDialog.addEventListener("click", function(e){
+    if (e.target === els.settingsDialog) els.settingsDialog.close();
+  });
+  els.settingsDialog.addEventListener("close", function(){
+    render();
+  });
+
   // Jednotka sedí vpravo v inputu — odsadíme text přesně o její šířku,
   // ať se "6" nikdy nedotkne "Kč/kWh".
   function fitUnitPadding(){
@@ -799,6 +958,7 @@
   }
 
   applyStateToInputs();
+  saveState();
   render();
   fitUnitPadding();
   window.addEventListener("resize", fitUnitPadding);

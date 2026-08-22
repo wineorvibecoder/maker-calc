@@ -1,6 +1,7 @@
-# Bambu Kalkulačka X2D
+# Maker Calc
 
-Webová mini-appka na výpočet ceny 3D tisku na tiskárně **Bambu Lab X2D**.
+Webová mini-appka na výpočet ceny 3D tisku. Výchozí hodnoty jsou laděné
+pro **Bambu Lab X2D**, ale v nastavení si je přepíšeš pro jakoukoli tiskárnu.
 Odpovídá na otázku „kolik mě to vlastně stálo, než jsem to zase dal zadarmo“.
 
 ## Koncept
@@ -20,6 +21,9 @@ je živý při psaní, žádné tlačítko „Spočítat“.
 Vlastní git repozitář, veřejný na GitHubu jako projekt **maker-calc**:
 <https://github.com/wineorvibecoder/maker-calc>
 
+Živá verze běží na GitHub Pages — dá se otevřít rovnou z mobilu v dílně:
+<https://wineorvibecoder.github.io/maker-calc/>
+
 ## Tech stack
 
 Vanilla HTML/CSS/JS v **jednom souboru**, bez frameworků, bez build kroku,
@@ -35,28 +39,40 @@ i po otevření `index.html` přímo z disku.
 1. Otevřít `index.html` v prohlížeči (dvojklik stačí, server není potřeba).
 2. Nahoře zvolit režim — **Pro kámoše** / **Na prodej**.
 3. Vyplnit gramy filamentu a dobu tisku (obojí vyčteno ze sliceru).
-4. Ostatní hodnoty mají rozumné výchozí nastavení, ale jdou přepsat.
+4. Sazby a konstanty (elektřina, amortizace, zmetkovitost…) sedí
+   v **⚙️ Nastavení** — jednou se nastaví a pak už na ně není potřeba sahat.
 5. Vpravo (na mobilu dole) se průběžně dopočítává rozpis položek,
    **cena za kus** a **cena za celý plate**.
 
 Zadané hodnoty i zvolený režim se ukládají do `localStorage` (klíč
-`bambuX2D.v1`), takže se defaulty nemusí přepisovat pokaždé znovu.
-Tlačítko **Reset na výchozí** vrátí původní hodnoty.
+`makerCalc.v1`), takže se defaulty nemusí přepisovat pokaždé znovu.
+Tlačítko **Reset na výchozí** v nastavení vrátí původní hodnoty.
 
 ## Vstupy
 
-### Společné pro oba režimy
+Pole jsou rozdělená podle jednoduchého pravidla: **množství z konkrétního
+tisku zůstává na hlavní obrazovce, sazby a konstanty jsou v nastavení.**
+
+### Hlavní obrazovka — mění se u každého tisku
 
 | Pole | Výchozí | Poznámka |
 |---|---|---|
 | Počet kusů na plate | `1` | dělí se jím celková cena |
-| Filament (g) | — | ze slicerů |
-| Cena filamentu (Kč/kg) | `350` | |
-| Doba tisku (h) | — | ze slicerů, desetinné číslo |
+| Filament (g) | — | ze sliceru |
+| Cena filamentu (Kč/kg) | `350` | vepředu schválně — liší se s každou cívkou i materiálem |
+| Doba tisku (h) | — | ze sliceru, desetinné číslo |
+| Můj čas (h) | `0.25` | jen „Na prodej“; 15 min na přípravu a sundání, u složitějšího kusu víc |
+
+### ⚙️ Nastavení — sazby a konstanty
+
+**Tiskárna a energie** (platí v obou režimech):
+
+| Pole | Výchozí | Poznámka |
+|---|---|---|
 | Příkon tiskárny (W) | `200` | orientační průměr, jde zpřesnit wattmetrem |
 | Cena elektřiny (Kč/kWh) | `6` | |
 
-### Jen pro režim „Na prodej“
+**Náklady pro režim „Na prodej“** (v režimu Pro kámoše se skryjí):
 
 | Pole | Výchozí | Poznámka |
 |---|---|---|
@@ -65,8 +81,10 @@ Tlačítko **Reset na výchozí** vrátí původní hodnoty.
 | Spotřební díly (Kč/h tisku) | `4` | viz rozpad níže |
 | Spotřební materiál na tisk (Kč) | `1` | jednou za celý plate, ne za kus |
 | Zmetkovitost (%) | `10` | |
-| Můj čas (Kč/h) | `500` | |
-| Můj čas (h) | `0.25` | 15 minut na přípravu a sundání |
+| Můj čas (Kč/h) | `500` | hodinová sazba |
+
+Když se cokoli v nastavení liší od výchozí hodnoty, svítí na tlačítku
+**Nastavení** tečka — ať je poznat, že se počítá s něčím přenastaveným.
 
 **Odkud se bere 4 Kč/h za spotřební díly:**
 kalená tryska ~400–600 Kč / ~300–500 h ≈ 1–1,5 Kč/h · PEI deska
@@ -132,7 +150,13 @@ ale vlastní čas.
 - Prázdné pole = 0; počet kusů minimálně 1; nulová životnost tiskárny dá
   nulovou amortizaci, ne `Infinity`.
 - Odsazení textu v inputech se dopočítává podle šířky jednotky, aby se
-  hodnota nikdy nedotkla popisku „Kč/kWh“.
+  hodnota nikdy nedotkla popisku „Kč/kWh“. Po otevření nastavení se přepočítá
+  znovu — skrytá pole mají do té doby nulové rozměry.
+- Nastavení je nativní `<dialog>` otevřený přes `showModal()`, takže Esc
+  a fokus řeší prohlížeč sám. Zavírá se i křížkem a klikem na pozadí.
+- `color-scheme: dark` — aby prohlížeč kreslil scrollbary a spinnery tmavě.
+- Starý klíč `localStorage` (`bambuX2D.v1`) se při prvním spuštění zmigruje
+  na `makerCalc.v1`, ať uložené hodnoty nezmizí.
 
 ## Stav
 
