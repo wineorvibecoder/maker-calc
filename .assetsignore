@@ -1,0 +1,11 @@
+# Publish only the files required to run the website.
+*
+!/apple-touch-icon.png
+!/favicon-16.png
+!/favicon-32.png
+!/favicon.ico
+!/icon-192.png
+!/icon-512.png
+!/index.html
+!/logo-144.png
+!/site.webmanifest

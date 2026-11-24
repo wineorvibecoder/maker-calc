@@ -21,8 +21,9 @@ je živý při psaní, žádné tlačítko „Spočítat“.
 Vlastní git repozitář, veřejný na GitHubu jako projekt **maker-calc**:
 <https://github.com/wineorvibecoder/maker-calc>
 
-Živá verze běží na GitHub Pages — dá se otevřít rovnou z mobilu v dílně:
-<https://wineorvibecoder.github.io/maker-calc/>
+Živá verze běží na [maker-calc.elicer.cz](https://maker-calc.elicer.cz/).
+Pro nasazení z `main` spusť `npx wrangler deploy` s přihlášením do účtu Cloudflare pro elicer.cz.
+Soubory k publikování určuje `.assetsignore`.
 
 ## Tech stack
 
