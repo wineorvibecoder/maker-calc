@@ -47,7 +47,7 @@ Logika appky zůstává celá v `index.html` — ostatní soubory jsou jen ikony
 
 1. Otevřít `index.html` v prohlížeči (dvojklik stačí, server není potřeba).
 2. Nahoře zvolit režim — **Pro kámoše** / **Na prodej**.
-3. Vyplnit gramy filamentu a dobu tisku (obojí vyčteno ze sliceru).
+3. Vyplnit celkové gramy filamentu a celkovou dobu tisku za celý plate podle sliceru.
 4. Sazby a konstanty (elektřina, amortizace, zmetkovitost…) sedí
    v **⚙️ Nastavení** — jednou se nastaví a pak už na ně není potřeba sahat.
 5. Vpravo (na mobilu dole) se průběžně dopočítává rozpis položek,
@@ -67,9 +67,9 @@ tisku zůstává na hlavní obrazovce, sazby a konstanty jsou v nastavení.**
 | Pole | Výchozí | Poznámka |
 |---|---|---|
 | Počet kusů na plate | `1` | dělí se jím celková cena |
-| Filament (g) | — | ze sliceru |
+| Filament za celý plate (g) | — | celková spotřeba ze sliceru |
 | Cena filamentu (Kč/kg) | `350` | vepředu schválně — liší se s každou cívkou i materiálem |
-| Doba tisku (h) | — | ze sliceru, desetinné číslo |
+| Doba tisku za celý plate (h) | — | celková doba ze sliceru, desetinné číslo |
 | Můj čas (h) | `0.25` | jen „Na prodej“; 15 min na přípravu a sundání, u složitějšího kusu víc |
 
 ### ⚙️ Nastavení — sazby a konstanty

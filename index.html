@@ -2,7 +2,7 @@
 <html lang="cs">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Maker Calc</title>
 
 <!-- Ikony pro prohlížeče -->
@@ -181,7 +181,7 @@
   .card .sub{
     margin: 0 0 16px;
     font-size: .8rem;
-    color: var(--text-faint);
+    color: var(--text-dim);
   }
 
   .field{
@@ -298,7 +298,7 @@
     font-size: .74rem;
     text-transform: uppercase;
     letter-spacing: .04em;
-    color: var(--text-faint);
+    color: var(--text-dim);
     margin-bottom: 6px;
   }
   .headline-box .value{
@@ -493,7 +493,7 @@
     <img class="logo" src="logo-144.png" width="46" height="46" alt="" aria-hidden="true">
     <div class="titleblock">
       <h1>Maker Calc</h1>
-      <p>Kolik tě to fakt stálo, než jsi to zase dal zadarmo.</p>
+      <p>Kalkulačka ceny 3D tisku</p>
     </div>
     <div class="mode-toggle" role="tablist" aria-label="Režim výpočtu">
       <button type="button" id="modeKamos" role="tab">Pro kámoše</button>
@@ -509,7 +509,7 @@
     <!-- INPUTS -->
     <div class="card inputs-card">
       <h2>Vstupy</h2>
-      <p class="sub">Vyplň, co víš. Zbytek dopočítáme za tebe.</p>
+      <p class="sub">Filament a dobu tisku najdeš v souhrnu sliceru.</p>
 
       <div class="field">
         <label for="pieceCount">Počet kusů na plate</label>
@@ -517,7 +517,7 @@
       </div>
 
       <div class="field has-unit">
-        <label for="filamentG">Filament</label>
+        <label for="filamentG">Filament za celý plate</label>
         <div class="input-row">
           <input type="number" id="filamentG" min="0" step="1" inputmode="decimal" placeholder="např. 42">
           <span class="unit">g</span>
@@ -533,7 +533,7 @@
       </div>
 
       <div class="field has-unit">
-        <label for="printTime">Doba tisku</label>
+        <label for="printTime">Doba tisku za celý plate</label>
         <div class="input-row">
           <input type="number" id="printTime" min="0" step="0.1" inputmode="decimal" placeholder="např. 3.5">
           <span class="unit">h</span>
@@ -554,7 +554,7 @@
     <div class="card results-card">
       <div id="emptyState" class="empty-state" hidden>
         <div class="emoji">🧵</div>
-        <p>Vyplň gramy a čas, ať mám co počítat…</p>
+        <p>Po zadání se zobrazí cena za kus i za celý plate.</p>
       </div>
 
       <div id="resultsContent">
